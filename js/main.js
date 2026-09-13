@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initBookingEngine();
   initPaymentPartners();
   initContactForm();
+  initScrollReveal();
 });
 
 /* --------------------------------------------------------------------------
@@ -1556,7 +1557,7 @@ function initContactForm() {
       successBanner.style.display = 'block';
       successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
-      alert('Thank you for contacting CoveBit. D. Meena will respond to your enquiry shortly.');
+      alert('Message Successfully Sent! Thank you.');
     }
 
     form.reset();
@@ -1565,4 +1566,53 @@ function initContactForm() {
 
   // Initial check on load
   checkFormValidity();
+}
+
+/* --------------------------------------------------------------------------
+   Apple-Style Fluid Scroll Reveal
+   -------------------------------------------------------------------------- */
+function initScrollReveal() {
+  if (!('IntersectionObserver' in window)) return;
+
+  const revealSelectors = [
+    '.service-card',
+    '.feature-card',
+    '.pricing-card',
+    '.booking-form-card',
+    '.section-header',
+    '.faq-item',
+    '.contact-wrapper',
+    '.stat-card',
+    '.testimonial-card',
+    '.area-card'
+  ];
+
+  const elements = document.querySelectorAll(revealSelectors.join(', '));
+  if (!elements.length) return;
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    root: null,
+    threshold: 0.08,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  elements.forEach((el) => {
+    if (!el.classList.contains('reveal-on-scroll')) {
+      el.classList.add('reveal-on-scroll');
+      if (el.parentElement && el.parentElement.children.length > 1) {
+        const siblingIndex = Array.prototype.indexOf.call(el.parentElement.children, el);
+        if (siblingIndex > 0 && siblingIndex < 6) {
+          el.style.transitionDelay = `${siblingIndex * 0.08}s`;
+        }
+      }
+    }
+    observer.observe(el);
+  });
 }
