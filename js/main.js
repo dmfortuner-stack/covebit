@@ -1546,22 +1546,68 @@ function initContactForm() {
     });
   }
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!checkFormValidity()) {
       alert('Please fill all required fields marked with * before sending your message.');
       return;
     }
 
-    if (successBanner) {
-      successBanner.style.display = 'block';
-      successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-      alert('Message Successfully Sent! Thank you.');
+    const customerName = nameInput ? nameInput.value.trim() : '';
+    const customerEmail = emailInput ? emailInput.value.trim() : '';
+    const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+    const subjectInput = document.getElementById('contact-subject');
+    const subjectVal = subjectInput ? subjectInput.value.trim() : '';
+    const messageVal = messageInput ? messageInput.value.trim() : '';
+
+    const orderDetailsParts = [];
+    if (phoneVal) orderDetailsParts.push(`Phone: ${phoneVal}`);
+    if (subjectVal) orderDetailsParts.push(`Topic/Service: ${subjectVal}`);
+    if (messageVal) orderDetailsParts.push(`Message:\n${messageVal}`);
+    const orderDetails = orderDetailsParts.join('\n\n');
+
+    const originalBtnText = submitBtn ? submitBtn.textContent : 'Send Message to D. Meena';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
     }
 
-    form.reset();
-    checkFormValidity();
+    try {
+      const response = await fetch('/api/send-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          customerName,
+          customerEmail,
+          orderDetails
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.success !== false) {
+        if (successBanner) {
+          successBanner.style.display = 'block';
+          successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          alert('Message Successfully Sent! Thank you.');
+        }
+        form.reset();
+      } else {
+        const errorMsg = (data && data.error) ? data.error : 'Failed to send message.';
+        alert(`Error: ${errorMsg}\nPlease try again or call +44 7979 515140 directly.`);
+      }
+    } catch (error) {
+      console.error('Contact form submission error:', error);
+      alert('Unable to send your message at this moment. Please call Senior Engineer D. Meena directly at +44 7979 515140.');
+    } finally {
+      if (submitBtn) {
+        submitBtn.textContent = originalBtnText;
+      }
+      checkFormValidity();
+    }
   });
 
   // Initial check on load
