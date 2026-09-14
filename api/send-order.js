@@ -25,30 +25,6 @@ module.exports = async (req, res) => {
 
   const refTag = bookingRef ? (bookingRef.startsWith('#') ? bookingRef : `#${bookingRef}`) : '';
 
-  // Payment Options block
-  let paymentBlock = '';
-  if (!isOnCall && (stripeUrl || paypalUrl)) {
-    paymentBlock = [
-      '==================================================',
-      'PAYMENT OPTIONS',
-      '==================================================',
-      'Please complete your payment using either option below to confirm your booking:',
-      refTag ? `• Please mention your booking reference (${refTag}) as a payment remark.` : '',
-      '',
-      stripeUrl ? `• Pay by Card (Stripe): ${stripeUrl}` : '',
-      paypalUrl ? `• Pay with PayPal: ${paypalUrl}` : '',
-      ''
-    ].filter(Boolean).join('\n');
-  } else if (isOnCall) {
-    paymentBlock = [
-      '==================================================',
-      'PAYMENT INSTRUCTIONS',
-      '==================================================',
-      'On-call visit quote and payment details will be confirmed directly over phone or WhatsApp prior to the visit.',
-      ''
-    ].join('\n');
-  }
-
   const clientText = [
     `Hi ${customerName},`,
     '',
@@ -60,7 +36,6 @@ module.exports = async (req, res) => {
     '==================================================',
     orderDetails,
     '',
-    paymentBlock,
     '==================================================',
     'WHAT HAPPENS NEXT?',
     '==================================================',
@@ -71,7 +46,6 @@ module.exports = async (req, res) => {
     'Need to make changes or have questions?',
     'Call/WhatsApp: +44 7979 515140',
     'Email: dm@covebit.co.uk',
-    'Website: https://covebit.co.uk',
     '',
     '— Covebit IT Support',
     'D. Meena | Senior IT Systems Engineer'
