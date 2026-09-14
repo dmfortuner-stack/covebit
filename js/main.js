@@ -1132,7 +1132,7 @@ function initBookingEngine() {
   }
 
   // Form Submission
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const res = validateBookingForm({ focusFirst: true, showErrors: true });
@@ -1186,6 +1186,65 @@ function initBookingEngine() {
     // Generate reference codes
     const randomCode = Math.floor(10000 + Math.random() * 90000);
     const bookingRef = `CB-${randomCode}`;
+
+    // Prepare JSON payload for Resend /api/send-order
+    const customerName = name.trim();
+    const customerEmail = email.trim();
+    const orderDetails = [
+      `Booking Reference: #${bookingRef}`,
+      `Selected Package: ${isOnCall ? 'On-Call Custom Quote' : pkg.name + ' (' + pkg.priceStr + ' GBP)'}`,
+      `Service Needed: ${service}`,
+      `Support Delivery: ${sessionType}`,
+      `Date & Time Slot: ${date} at ${time}`,
+      `Phone Number: ${phone}`,
+      postcode ? `On-Site Location / Postcode: ${postcode}` : '',
+      `Payment Method: ${isOnCall ? 'Custom Quote (No Upfront Payment)' : paymentMethodName}`,
+      '',
+      'Issue Description:',
+      issue
+    ].filter(Boolean).join('\n');
+
+    // UI Loading state on submit button
+    const submitBtn = document.getElementById('booking-submit-btn');
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : 'Confirm Booking &rarr;';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Processing &amp; Reserving IT Session...</span>';
+    }
+
+    // Send POST request with fetch() to /api/send-order
+    try {
+      const response = await fetch('/api/send-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          customerName,
+          customerEmail,
+          orderDetails
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data || data.success !== true) {
+        const errorMsg = (data && data.error) ? data.error : `Server responded with status ${response.status}`;
+        throw new Error(errorMsg);
+      }
+    } catch (err) {
+      console.error('Failed to submit order to /api/send-order:', err);
+      alert('Unable to confirm your booking reservation: ' + (err.message || 'Network request failed') + '\n\nPlease check your internet connection or contact Senior Engineer D. Meena directly at +44 7979 515140.');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+      return;
+    } finally {
+      if (submitBtn) {
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+    }
 
     // Populate confirmation display
     const refDisplay = document.getElementById('confirm-ref-display');
@@ -1587,7 +1646,7 @@ function initContactForm() {
 
       const data = await response.json().catch(() => ({}));
 
-      if (response.ok && data.success !== false) {
+      if (response.ok && data && data.success === true) {
         if (successBanner) {
           successBanner.style.display = 'block';
           successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
