@@ -7,25 +7,89 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { customerEmail, customerName, orderDetails } = req.body;
+  const {
+    customerEmail,
+    customerName,
+    orderDetails,
+    bookingRef,
+    packageName,
+    priceStr,
+    stripeUrl,
+    paypalUrl,
+    isOnCall
+  } = req.body;
 
   if (!customerEmail || !customerName) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  const refTag = bookingRef ? (bookingRef.startsWith('#') ? bookingRef : `#${bookingRef}`) : '';
+
+  // Payment Options block
+  let paymentBlock = '';
+  if (!isOnCall && (stripeUrl || paypalUrl)) {
+    paymentBlock = [
+      '==================================================',
+      'PAYMENT OPTIONS',
+      '==================================================',
+      'Please complete your payment using either option below to confirm your booking:',
+      refTag ? `• Please mention your booking reference (${refTag}) as a payment remark.` : '',
+      '',
+      stripeUrl ? `• Pay by Card (Stripe): ${stripeUrl}` : '',
+      paypalUrl ? `• Pay with PayPal: ${paypalUrl}` : '',
+      ''
+    ].filter(Boolean).join('\n');
+  } else if (isOnCall) {
+    paymentBlock = [
+      '==================================================',
+      'PAYMENT INSTRUCTIONS',
+      '==================================================',
+      'On-call visit quote and payment details will be confirmed directly over phone or WhatsApp prior to the visit.',
+      ''
+    ].join('\n');
+  }
+
+  const clientText = [
+    `Hi ${customerName},`,
+    '',
+    'Thank you for scheduling your IT support session with Covebit.',
+    refTag ? `Your booking request has been received under reference ${refTag}.` : 'Your booking request has been received.',
+    '',
+    '==================================================',
+    'BOOKING SUMMARY',
+    '==================================================',
+    orderDetails,
+    '',
+    paymentBlock,
+    '==================================================',
+    'WHAT HAPPENS NEXT?',
+    '==================================================',
+    '1. Verification: D. Meena will contact you via phone or WhatsApp (+44 7979 515140) to confirm your session slot.',
+    '2. Remote Session: You will receive a secure Quick Assist / AnyDesk link at your appointment time.',
+    '3. Full Control: You watch the screen live and remain in complete control at all times.',
+    '',
+    'Need to make changes or have questions?',
+    'Call/WhatsApp: +44 7979 515140',
+    'Email: dm@covebit.co.uk',
+    'Website: https://covebit.co.uk',
+    '',
+    '— Covebit IT Support',
+    'D. Meena | Senior IT Systems Engineer'
+  ].filter(line => line !== undefined).join('\n');
+
   try {
     await resend.emails.send({
       from: 'dm@covebit.co.uk',
       to: 'dm@covebit.co.uk',
-      subject: `New order/query from ${customerName}`,
+      subject: `New order/query from ${customerName}${refTag ? ` [${refTag}]` : ''}`,
       text: `From: ${customerEmail}\n\nDetails:\n${orderDetails}`,
     });
 
     await resend.emails.send({
       from: 'dm@covebit.co.uk',
       to: customerEmail,
-      subject: 'Booking Confirmation & Terms — Covebit IT Support',
-      text: `Hi ${customerName},\n\nThank you for scheduling your IT support session with Covebit. We have received your booking request and will be in touch shortly.\n\n==================================================\nBOOKING SUMMARY\n==================================================\n${orderDetails}\n\n==================================================\nBOOKING TERMS & IMMEDIATE-START CONFIRMATION\n==================================================\nTrader: D. Meena trading as Covebit (Wembley, London | dm@covebit.co.uk | +44 7979 515140)\nTerms and Conditions: https://covebit.co.uk/terms.html\n\nBooking Summary Table:\n• Service Delivery: Remote IT Support (Quick Assist / AnyDesk)\n• Cancellation: Full refund if cancelled 2+ hours prior to session; £25 fee within 2 hours\n• Consumer Cooling-Off: 14-day statutory right under Consumer Contracts Regulations 2013\n• Immediate-Start Request: Booked fee is payable once the session starts\n• Guarantee: No-Fix No-Fee policy\n\nImmediate-Start Confirmation:\n"I request that work starts before the 14-day cooling-off period ends. I understand that once the session starts, the booked fee is payable as set out in the Covebit Terms and Conditions."\n\nIf you can't find our email, please check your Spam/Junk folder. Remember to whitelist us and save our email to your contacts so you don't miss future updates. Thanks!\n\n— Covebit IT Support\nD. Meena | Senior IT Systems Engineer`,
+      subject: `Booking Confirmation${refTag ? ` [${refTag}]` : ''} — Covebit IT Support`,
+      text: clientText,
     });
 
     res.status(200).json({ success: true });
