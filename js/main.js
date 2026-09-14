@@ -367,6 +367,8 @@ function initBookingEngine() {
   const btnStep3Prev = document.getElementById('btn-step-3-prev');
   const btnEditReservation = document.getElementById('btn-edit-reservation');
 
+  const phoneHint = document.getElementById('phone-hint');
+
   function showPhoneErr(msg) {
     if (phoneErrorMsg) {
       phoneErrorMsg.textContent = msg;
@@ -392,26 +394,36 @@ function initBookingEngine() {
       val = val.replace(/\D/g, '').slice(0, 11);
       phoneInput.value = val;
 
-      if (val.length > 0 && !val.startsWith('0')) {
+      if (val.length === 0) {
+        if (phoneHint) phoneHint.innerHTML = 'Must be 11 digits starting with 07 (e.g. 07979515140)';
+        clearPhoneErr();
+      } else if (!val.startsWith('0')) {
         showPhoneErr('Phone number must start with 07');
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #dc2626; font-weight: 600;">Must start with 07 (e.g. 07979515140)</span>';
       } else if (val.length >= 2 && !val.startsWith('07')) {
         showPhoneErr('Phone number must start with 07');
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #dc2626; font-weight: 600;">Must start with 07 (UK mobile)</span>';
       } else if (val.length > 0 && val.length < 11) {
-        showPhoneErr(`Must be exactly 11 digits (${val.length}/11 entered)`);
+        clearPhoneErr();
+        if (phoneHint) phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">UK Mobile: ${val.length}/11 digits entered</span>`;
       } else if (val.length === 11 && val.startsWith('07')) {
         clearPhoneErr();
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid 11-digit UK Mobile Number</span>';
       } else {
         clearPhoneErr();
       }
       updatePaymentGateStatus();
+      if (typeof saveBookingDraft === 'function') saveBookingDraft();
     });
 
     phoneInput.addEventListener('blur', () => {
       const val = phoneInput.value.trim();
       if (val.length > 0 && !/^07\d{9}$/.test(val)) {
         showPhoneErr('Phone number must start with 07 and be exactly 11 digits (e.g. 07979515140)');
+        if (phoneHint) phoneHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Must be exactly 11 digits starting with 07 (${val.length}/11 entered)</span>`;
       } else if (val.length === 11 && /^07\d{9}$/.test(val)) {
         clearPhoneErr();
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid 11-digit UK Mobile Number</span>';
       }
       updatePaymentGateStatus();
     });
@@ -753,6 +765,10 @@ function initBookingEngine() {
       updatePaymentGateStatus();
     }
 
+    if (typeof saveBookingDraft === 'function') {
+      saveBookingDraft();
+    }
+
     if (!skipScroll && form) {
       form.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -898,13 +914,108 @@ function initBookingEngine() {
       field.addEventListener('input', () => {
         if (field.value && field.value.trim()) field.classList.remove('input-error');
         updatePaymentGateStatus();
+        if (typeof saveBookingDraft === 'function') saveBookingDraft();
       });
       field.addEventListener('change', () => {
         if (field.value && field.value.trim()) field.classList.remove('input-error');
         updatePaymentGateStatus();
+        if (typeof saveBookingDraft === 'function') saveBookingDraft();
       });
     }
   });
+
+  const postcodeInput = document.getElementById('booking-postcode');
+  if (postcodeInput) {
+    postcodeInput.addEventListener('input', () => {
+      postcodeInput.value = postcodeInput.value.toUpperCase();
+      if (typeof saveBookingDraft === 'function') saveBookingDraft();
+    });
+    postcodeInput.addEventListener('change', () => {
+      if (typeof saveBookingDraft === 'function') saveBookingDraft();
+    });
+  }
+
+  // Preserve form progress in sessionStorage across steps 1-3
+  function saveBookingDraft() {
+    try {
+      const selectedPkgRadio = document.querySelector('input[name="selected_package"]:checked');
+      const selectedSessionRadio = document.querySelector('input[name="session_type"]:checked');
+      const selectedPaymentRadio = document.querySelector('input[name="payment_partner"]:checked');
+      const pInput = document.getElementById('booking-postcode');
+
+      const draft = {
+        step: currentStep,
+        pkg: (packageSelect ? packageSelect.value : (selectedPkgRadio ? selectedPkgRadio.value : '')) || '',
+        service: (serviceSelect ? serviceSelect.value : '') || '',
+        sessionType: selectedSessionRadio ? selectedSessionRadio.value : 'Remote Screen-Share',
+        name: (nameInput ? nameInput.value : '') || '',
+        email: (emailInput ? emailInput.value : '') || '',
+        phone: (phoneInput ? phoneInput.value : '') || '',
+        date: (dateInput ? dateInput.value : '') || '',
+        time: (timeSelect ? timeSelect.value : '') || '',
+        issue: (issueInput ? issueInput.value : '') || '',
+        postcode: pInput ? pInput.value : '',
+        paymentPartner: selectedPaymentRadio ? selectedPaymentRadio.value : 'stripe'
+      };
+      sessionStorage.setItem('covebit_booking_draft', JSON.stringify(draft));
+    } catch (e) {
+      // sessionStorage unavailable or quota exceeded
+    }
+  }
+
+  function restoreBookingDraft() {
+    try {
+      const raw = sessionStorage.getItem('covebit_booking_draft');
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (!draft || typeof draft !== 'object') return;
+
+      if (draft.pkg && PRICING_PACKAGES[draft.pkg]) {
+        if (packageSelect) packageSelect.value = draft.pkg;
+        packageRadioCards.forEach(r => {
+          r.checked = (r.value === draft.pkg);
+        });
+        updatePaymentLinks(draft.pkg);
+      }
+      if (draft.service && serviceSelect) {
+        serviceSelect.value = draft.service;
+      }
+      if (draft.sessionType) {
+        const r = document.querySelector(`input[name="session_type"][value="${draft.sessionType}"]`);
+        if (r) {
+          r.checked = true;
+          setSupportMode(draft.sessionType === 'On-Call Visit');
+        }
+      }
+      if (draft.name && nameInput) nameInput.value = draft.name;
+      if (draft.email && emailInput) emailInput.value = draft.email;
+      if (draft.phone && phoneInput) {
+        phoneInput.value = draft.phone;
+        const ev = new Event('input', { bubbles: true });
+        phoneInput.dispatchEvent(ev);
+      }
+      if (draft.date && dateInput) dateInput.value = draft.date;
+      if (draft.time && timeSelect) timeSelect.value = draft.time;
+      if (draft.issue && issueInput) issueInput.value = draft.issue;
+      const pInput = document.getElementById('booking-postcode');
+      if (draft.postcode && pInput) pInput.value = draft.postcode;
+      if (draft.paymentPartner) {
+        const p = document.querySelector(`input[name="payment_partner"][value="${draft.paymentPartner}"]`);
+        if (p) p.checked = true;
+      }
+
+      if (draft.step === 2) {
+        const s1 = validateStep1({ focusFirst: false, showErrors: false });
+        if (s1.isValid) goToStep(2, { skipScroll: true });
+      } else if (draft.step === 3) {
+        const s1 = validateStep1({ focusFirst: false, showErrors: false });
+        const s2 = validateStep2({ focusFirst: false, showErrors: false });
+        if (s1.isValid && s2.isValid) goToStep(3, { skipScroll: true });
+      }
+    } catch (e) {
+      console.warn('Could not restore booking draft:', e);
+    }
+  }
 
   updatePaymentGateStatus();
 
@@ -946,13 +1057,19 @@ function initBookingEngine() {
 
   if (deliveryRemoteRadio) {
     deliveryRemoteRadio.addEventListener('change', () => {
-      if (deliveryRemoteRadio.checked) setSupportMode(false);
+      if (deliveryRemoteRadio.checked) {
+        setSupportMode(false);
+        saveBookingDraft();
+      }
     });
   }
 
   if (deliveryOnCallRadio) {
     deliveryOnCallRadio.addEventListener('change', () => {
-      if (deliveryOnCallRadio.checked) setSupportMode(true);
+      if (deliveryOnCallRadio.checked) {
+        setSupportMode(true);
+        saveBookingDraft();
+      }
     });
   }
 
@@ -964,6 +1081,7 @@ function initBookingEngine() {
           setSupportMode(true);
         }
       }
+      saveBookingDraft();
     });
   }
 
@@ -977,6 +1095,7 @@ function initBookingEngine() {
       packageRadioCards.forEach(r => {
         r.checked = (r.value === selectedVal);
       });
+      if (typeof saveBookingDraft === 'function') saveBookingDraft();
     });
   }
 
@@ -985,6 +1104,7 @@ function initBookingEngine() {
       if (radio.checked) {
         if (packageSelect) packageSelect.value = radio.value;
         updatePaymentLinks(radio.value);
+        if (typeof saveBookingDraft === 'function') saveBookingDraft();
       }
     });
   });
@@ -1113,11 +1233,52 @@ function initBookingEngine() {
       'CoveBit IT Support'
     ].filter(line => line !== '').join('\n');
 
-    // 1. Configure pre-filled 1-click mail client button for user / verification
+    // 1. Configure pre-filled 1-click mail client button & Interactive Email Preview Modal
     const mailtoBtn = document.getElementById('confirm-email-mailto-btn');
+    const emailModal = document.getElementById('email-preview-modal');
+    const emailPreviewText = document.getElementById('email-preview-text');
+    const btnCloseEmailModal = document.getElementById('btn-close-email-modal');
+    const btnCopyEmailText = document.getElementById('btn-copy-email-text');
+    const btnOpenInEmailApp = document.getElementById('btn-open-in-email-app');
+
+    const mailtoUrl = `mailto:${encodeURIComponent(adminEmail)}?cc=${encodeURIComponent(clientEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+
+    if (emailPreviewText) {
+      emailPreviewText.textContent = emailBody;
+    }
+    if (btnOpenInEmailApp) {
+      btnOpenInEmailApp.href = mailtoUrl;
+    }
     if (mailtoBtn) {
-      const mailtoUrl = `mailto:${encodeURIComponent(adminEmail)}?cc=${encodeURIComponent(clientEmail)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
       mailtoBtn.href = mailtoUrl;
+      mailtoBtn.onclick = (e) => {
+        e.preventDefault();
+        if (emailModal) emailModal.style.display = 'flex';
+      };
+    }
+    if (btnCloseEmailModal && emailModal) {
+      btnCloseEmailModal.onclick = () => {
+        emailModal.style.display = 'none';
+      };
+    }
+    if (emailModal) {
+      emailModal.onclick = (e) => {
+        if (e.target === emailModal) emailModal.style.display = 'none';
+      };
+    }
+    if (btnCopyEmailText && emailPreviewText) {
+      btnCopyEmailText.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(emailPreviewText.textContent);
+          const orig = btnCopyEmailText.textContent;
+          btnCopyEmailText.textContent = '✓ Copied to Clipboard!';
+          setTimeout(() => {
+            btnCopyEmailText.textContent = orig;
+          }, 2000);
+        } catch (err) {
+          alert('Could not copy automatically. Please select the text in the preview box to copy.');
+        }
+      };
     }
 
     // 2. Dispatch email payload to webhook/endpoint if configured
@@ -1201,8 +1362,8 @@ function initBookingEngine() {
       }
     }
 
-    // Generate reference codes
-    const randomCode = Math.floor(10000 + Math.random() * 90000);
+    // Generate reference codes (6-digit unique reference)
+    const randomCode = Math.floor(100000 + Math.random() * 900000);
     const bookingRef = `CB-${randomCode}`;
 
     // Prepare JSON payload for Resend /api/send-order
@@ -1256,7 +1417,7 @@ function initBookingEngine() {
       }
     } catch (err) {
       console.error('Failed to submit order to /api/send-order:', err);
-      alert('Unable to confirm your booking reservation: ' + (err.message || 'Network request failed') + '\n\nPlease check your internet connection or contact Senior Engineer D. Meena directly at +44 7979 515140.');
+      alert('Unable to confirm your booking reservation: ' + (err.message || 'Network request failed') + '\n\nPlease check your internet connection or contact me directly at +44 7979 515140.');
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnHtml;
@@ -1426,6 +1587,11 @@ function initBookingEngine() {
       if (confirmPaypalBtn) confirmPaypalBtn.style.display = 'none';
     }
 
+    // Clear draft storage
+    try {
+      sessionStorage.removeItem('covebit_booking_draft');
+    } catch (e) {}
+
     // Transition UI
     form.style.display = 'none';
     confirmationState.classList.add('active');
@@ -1438,6 +1604,9 @@ function initBookingEngine() {
       clientPaidBeforeSubmit = false;
       clientPaidProvider = '';
       form.reset();
+      try {
+        sessionStorage.removeItem('covebit_booking_draft');
+      } catch (e) {}
       setSupportMode(false);
       updatePaymentGateStatus();
       goToStep(1, { skipScroll: true });
@@ -1449,6 +1618,11 @@ function initBookingEngine() {
 
   // Initialize booking flow on Step 1
   goToStep(1, { skipScroll: true });
+
+  // Restore draft state if user previously entered inputs
+  if (typeof restoreBookingDraft === 'function') {
+    restoreBookingDraft();
+  }
 }
 
 /* --------------------------------------------------------------------------

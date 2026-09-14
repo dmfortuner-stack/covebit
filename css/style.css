@@ -1523,6 +1523,27 @@ input[type="submit"]:disabled,
   display: none !important;
 }
 
+/* Email Preview Modal & Live Validation Animation */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.email-preview-modal {
+  transition: opacity 0.2s ease;
+}
+
+.btn-open-email-copy:hover {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+}
+
 /* --------------------------------------------------------------------------
    Service Page Internal Layout
    -------------------------------------------------------------------------- */

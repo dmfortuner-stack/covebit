@@ -414,7 +414,31 @@
 
                   <div class="form-group" id="step-2-postcode-container" style="display: none;">
                     <label for="booking-postcode" style="font-size: 0.88rem; font-weight: 600; color: var(--primary-900);">Postcode or London Address for Visit: <span class="required">*</span></label>
-                    <input type="text" id="booking-postcode" class="form-control" placeholder="e.g. HA9 7ND, Wembley or NW10">
+                    <input type="text" id="booking-postcode" class="form-control" placeholder="e.g. HA9 7ND, Wembley or NW10" list="london-postcodes-list" autocomplete="postal-code">
+                    <datalist id="london-postcodes-list">
+                      <option value="HA9 7ND (Wembley)">
+                      <option value="HA0 (Wembley Central)">
+                      <option value="NW10 (Willesden / Harlesden)">
+                      <option value="NW6 (Kilburn / West Hampstead)">
+                      <option value="NW3 (Hampstead)">
+                      <option value="NW1 (Camden Town)">
+                      <option value="W1 (West End / Mayfair)">
+                      <option value="W2 (Paddington / Bayswater)">
+                      <option value="W5 (Ealing)">
+                      <option value="W9 (Maida Vale)">
+                      <option value="SW1 (Westminster / Victoria)">
+                      <option value="SW3 (Chelsea)">
+                      <option value="SW6 (Fulham)">
+                      <option value="SW7 (South Kensington)">
+                      <option value="SW11 (Battersea)">
+                      <option value="EC1 (Clerkenwell / City)">
+                      <option value="EC2 (Moorgate / Liverpool St)">
+                      <option value="E1 (Whitechapel / Shoreditch)">
+                      <option value="E2 (Bethnal Green)">
+                      <option value="E14 (Canary Wharf / Isle of Dogs)">
+                      <option value="SE1 (Southwark / London Bridge)">
+                      <option value="SE10 (Greenwich)">
+                    </datalist>
                   </div>
 
                   <div class="step-nav-row">
@@ -491,7 +515,7 @@
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                       Ready to Confirm Your IT Session
                     </div>
-                    <span>Click <strong>Confirm Booking</strong> below to submit your reservation. A dynamic booking reference number will be generated instantly on-screen, along with direct payment options via Stripe and PayPal. A complete booking summary confirmation email will be sent to both you and our engineer.</span>
+                    <span>Click <strong>Confirm Booking</strong> below to submit your reservation. A dynamic booking reference number will be generated instantly on-screen, along with direct payment options via Stripe and PayPal. A complete booking summary confirmation email will be sent to both you and me directly.</span>
                   </div>
 
                   <!-- Compatibility Elements for test suite and fallback -->
@@ -515,7 +539,7 @@
                     </div>
 
                     <p class="oncall-quote-desc">
-                      On-site visits and physical operating system installations require on-call engineer dispatch and diagnostics. Pre-payment is deactivated for this option so D. Meena can provide an exact, fair quote tailored to your location and hardware.
+                      On-site visits and physical operating system installations require direct on-site diagnostics. Pre-payment is deactivated for this option so I can provide an exact, fair quote tailored to your location and hardware.
                     </p>
 
                     <div class="oncall-quote-actions">
@@ -573,7 +597,7 @@
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
                 <h3 class="confirm-title">Booking &amp; Payment Request Received!</h3>
-                <span id="confirm-ref-display" class="confirm-ref">Reference: #CB-78291</span>
+                <span id="confirm-ref-display" class="confirm-ref">Reference: #PENDING</span>
 
                 <!-- PROMINENT PAYMENT & REMARK INSTRUCTION BANNER -->
                 <div class="confirm-payment-instruction-banner">
@@ -582,7 +606,7 @@
                     <span>Please make the payment to below payment option and confirm booking.</span>
                   </div>
                   <div class="instruction-remark-pill">
-                    ⚠️ <strong>Important:</strong> Please mention booking reference number (<span id="confirm-ref-remark" class="ref-badge-highlight">#CB-78291</span>) while making payment as remark.
+                    ⚠️ <strong>Important:</strong> Please mention booking reference number (<span id="confirm-ref-remark" class="ref-badge-highlight">#PENDING</span>) while making payment as remark.
                   </div>
                 </div>
 
@@ -640,12 +664,12 @@
                         Confirmation Email Dispatched
                       </div>
                       <p style="font-size: 0.84rem; color: #166534; margin: 0 0 0.5rem 0; line-height: 1.45;">
-                        A complete booking summary with reference <strong id="confirm-email-ref-txt">#CB-XXXXX</strong> has been sent to your email (<strong id="confirm-email-client-txt">—</strong>) and to D. Meena (<strong>dm@covebit.co.uk</strong>).
+                        A complete booking summary with reference <strong id="confirm-email-ref-txt">#PENDING</strong> has been sent to your email (<strong id="confirm-email-client-txt">—</strong>) and to D. Meena (<strong>dm@covebit.co.uk</strong>).
                       </p>
-                      <a id="confirm-email-mailto-btn" href="#" class="btn-open-email-copy">
+                      <button type="button" id="confirm-email-mailto-btn" class="btn-open-email-copy" style="cursor: pointer; border: none; text-align: left;">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                         <span>Open / Review Email Copy in Mail Client</span>
-                      </a>
+                      </button>
                       <p style="font-size: 0.8rem; color: #15803d; margin: 0.65rem 0 0 0; line-height: 1.45;">
                         If you can't find our email, please check your Spam/Junk folder. Remember to whitelist us and save our email to your contacts so you don't miss future updates. Thanks!
                       </p>
@@ -656,29 +680,56 @@
                 <div class="confirm-details-box">
                   <dl>
                     <dt>Client Name:</dt>
-                    <dd id="confirm-name">Marcus Tyler</dd>
+                    <dd id="confirm-name">—</dd>
 
                     <dt>Contact:</dt>
-                    <dd id="confirm-contact">marcus@example.com</dd>
+                    <dd id="confirm-contact">—</dd>
 
                     <dt>Selected Package:</dt>
-                    <dd id="confirm-package" style="font-weight: 700; color: var(--brand-cyan);">Complete Tune-Up & Security Audit (£89 GBP)</dd>
+                    <dd id="confirm-package" style="font-weight: 700; color: var(--brand-cyan);">—</dd>
 
                     <dt>Payment Method:</dt>
-                    <dd id="confirm-payment" style="font-weight: 600;">Stripe (Credit / Debit Card) • Authorized</dd>
+                    <dd id="confirm-payment" style="font-weight: 600;">—</dd>
 
                     <dt>Service Category:</dt>
-                    <dd id="confirm-service">Speed Up Slow PC / Laptop Fix</dd>
+                    <dd id="confirm-service">—</dd>
 
                     <dt>Delivery:</dt>
-                    <dd id="confirm-type">Remote Screen-Share</dd>
+                    <dd id="confirm-type">—</dd>
 
                     <dt>Requested Time:</dt>
-                    <dd id="confirm-datetime">Today at Afternoon Slot</dd>
+                    <dd id="confirm-datetime">—</dd>
 
                     <dt>Problem Note:</dt>
-                    <dd id="confirm-issue">Laptop fan loud and freeze on startup.</dd>
+                    <dd id="confirm-issue">—</dd>
                   </dl>
+                </div>
+
+                <!-- Interactive Email Preview Modal -->
+                <div id="email-preview-modal" class="email-preview-modal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 1rem;">
+                  <div style="background: #ffffff; border-radius: 16px; width: 100%; max-width: 640px; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; border: 1px solid var(--border-light); animation: fadeInScale 0.2s ease;">
+                    <div style="padding: 1.15rem 1.5rem; background: var(--primary-900); color: #ffffff; display: flex; align-items: center; justify-content: space-between;">
+                      <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        <span style="font-weight: 700; font-size: 1rem;">Booking Confirmation Email Preview</span>
+                      </div>
+                      <button type="button" id="btn-close-email-modal" aria-label="Close modal" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0.25rem;">&times;</button>
+                    </div>
+                    <div style="padding: 1.25rem 1.5rem; overflow-y: auto; font-size: 0.88rem; line-height: 1.6; color: var(--text-dark); background: #f8fafc; flex: 1;">
+                      <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0; margin-bottom: 0.75rem;">
+                        Below is the exact email dispatched to your email and D. Meena (<strong>dm@covebit.co.uk</strong>):
+                      </p>
+                      <pre id="email-preview-text" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 8px; padding: 1rem; font-family: 'SFMono-Regular', Consolas, Menlo, monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-word; color: #1e293b; margin: 0;"></pre>
+                    </div>
+                    <div style="padding: 1rem 1.5rem; background: #ffffff; border-top: 1px solid var(--border-light); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.75rem;">
+                      <button type="button" id="btn-copy-email-text" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.55rem 1.15rem;">
+                        Copy Text
+                      </button>
+                      <a id="btn-open-in-email-app" href="#" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.55rem 1.15rem;">
+                        Open in Email App &rarr;
+                      </a>
+                    </div>
+                  </div>
                 </div>
 
                 <div style="background: #f0fdfa; border: 1px solid #ccfbf1; padding: 1.25rem; border-radius: var(--radius-md); text-align: left; margin-bottom: 1.5rem;">
@@ -702,10 +753,10 @@
             <div class="trust-sidebar-card">
               <div style="display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem; background: #f8fafc; border: 1px solid var(--border-light); border-radius: var(--radius-md); margin-bottom: 1.25rem;">
                 <div class="engineer-avatar" style="width: 44px; height: 44px; flex-shrink: 0;">
-                  <img src="images/ChatGPT Image Sep 12, 2026, 11_40_33 PM.png" alt="D. Meena" class="engineer-avatar-img">
+                  <img src="images/d-meena-engineer.jpg" alt="D. Meena" class="engineer-avatar-img">
                 </div>
                 <div>
-                  <div style="font-weight: 700; font-size: 0.92rem; color: var(--primary-900);">D. Meena • Lead Engineer</div>
+                  <div style="font-weight: 700; font-size: 0.92rem; color: var(--primary-900);">Direct Engineer — D. Meena, 15+ Years Hands-On</div>
                   <div style="font-size: 0.78rem; color: var(--accent-emerald); font-weight: 600;">● Online & On-Call in London</div>
                 </div>
               </div>
