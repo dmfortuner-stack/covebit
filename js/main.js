@@ -332,6 +332,25 @@ function initBookingEngine() {
   const paymentPartnerSection = document.getElementById('payment-partner-section');
   const oncallQuoteSection = document.getElementById('oncall-quote-section');
   const bookingSubmitBtn = document.getElementById('booking-submit-btn');
+  const termsCheckbox = document.getElementById('agree-terms-checkbox');
+
+  function updateTermsCheckboxState() {
+    if (!bookingSubmitBtn) return;
+    const isChecked = Boolean(termsCheckbox && termsCheckbox.checked);
+    bookingSubmitBtn.disabled = !isChecked;
+    if (!isChecked) {
+      bookingSubmitBtn.setAttribute('title', 'Please check the box to agree with Terms & Conditions to confirm your booking');
+    } else {
+      bookingSubmitBtn.removeAttribute('title');
+    }
+  }
+
+  if (termsCheckbox) {
+    termsCheckbox.addEventListener('change', () => {
+      updateTermsCheckboxState();
+      if (typeof saveBookingDraft === 'function') saveBookingDraft();
+    });
+  }
 
   // Payment Direct Buttons & Indicators
   const stripeDirectBtn = document.getElementById('stripe-direct-checkout-btn');
@@ -763,6 +782,7 @@ function initBookingEngine() {
     if (targetStep === 3) {
       updateStep3Recap();
       updatePaymentGateStatus();
+      updateTermsCheckboxState();
     }
 
     if (typeof saveBookingDraft === 'function') {
@@ -955,7 +975,8 @@ function initBookingEngine() {
         time: (timeSelect ? timeSelect.value : '') || '',
         issue: (issueInput ? issueInput.value : '') || '',
         postcode: pInput ? pInput.value : '',
-        paymentPartner: selectedPaymentRadio ? selectedPaymentRadio.value : 'stripe'
+        paymentPartner: selectedPaymentRadio ? selectedPaymentRadio.value : 'stripe',
+        termsAgreed: Boolean(termsCheckbox && termsCheckbox.checked)
       };
       sessionStorage.setItem('covebit_booking_draft', JSON.stringify(draft));
     } catch (e) {
@@ -1003,6 +1024,10 @@ function initBookingEngine() {
         const p = document.querySelector(`input[name="payment_partner"][value="${draft.paymentPartner}"]`);
         if (p) p.checked = true;
       }
+      if (draft.termsAgreed && termsCheckbox) {
+        termsCheckbox.checked = true;
+      }
+      updateTermsCheckboxState();
 
       if (draft.step === 2) {
         const s1 = validateStep1({ focusFirst: false, showErrors: false });
@@ -1320,6 +1345,12 @@ function initBookingEngine() {
       return;
     }
 
+    if (termsCheckbox && !termsCheckbox.checked) {
+      alert('Please check the box to agree with the Terms & Conditions before confirming your booking.');
+      termsCheckbox.focus();
+      return;
+    }
+
     const isOnCall = deliveryOnCallRadio ? deliveryOnCallRadio.checked : false;
 
     // 1. Get package
@@ -1604,6 +1635,8 @@ function initBookingEngine() {
       clientPaidBeforeSubmit = false;
       clientPaidProvider = '';
       form.reset();
+      if (termsCheckbox) termsCheckbox.checked = false;
+      updateTermsCheckboxState();
       try {
         sessionStorage.removeItem('covebit_booking_draft');
       } catch (e) {}
@@ -1623,6 +1656,9 @@ function initBookingEngine() {
   if (typeof restoreBookingDraft === 'function') {
     restoreBookingDraft();
   }
+
+  // Ensure initial Terms agreement button disabled state is applied
+  updateTermsCheckboxState();
 }
 
 /* --------------------------------------------------------------------------

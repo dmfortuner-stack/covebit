@@ -566,14 +566,20 @@
                   </div>
 
                   <!-- Immediate-Start Consumer Request & Terms Agreement -->
-                  <div class="immediate-start-box" style="margin-top: 1.25rem; padding: 1rem 1.25rem; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--radius-md); font-size: 0.85rem; color: #92400e; line-height: 1.5;">
+                  <div class="immediate-start-box" style="margin-top: 1.25rem; padding: 1.15rem 1.25rem; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--radius-md); font-size: 0.85rem; color: #92400e; line-height: 1.5;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; margin-bottom: 0.35rem; color: #b45309;">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                       <span>Immediate-Start Request (Consumer Cooling-off Period)</span>
                     </div>
-                    <p style="margin: 0; color: #78350f;">
+                    <p style="margin: 0 0 0.85rem 0; color: #78350f;">
                       &ldquo;I request that work starts before the 14-day cooling-off period ends. I understand that once the session starts, the booked fee is payable as set out in the <a href="terms.html" target="_blank" rel="noopener noreferrer" style="color: #b45309; text-decoration: underline; font-weight: 700;">Covebit Terms and Conditions</a>.&rdquo;
                     </p>
+                    <div style="padding-top: 0.85rem; border-top: 1px dashed #fcd34d;">
+                      <label for="agree-terms-checkbox" style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; user-select: none; font-size: 0.92rem; font-weight: 700; color: var(--primary-900); margin: 0;">
+                        <input type="checkbox" id="agree-terms-checkbox" style="width: 20px; height: 20px; accent-color: var(--brand-teal); cursor: pointer; flex-shrink: 0;" required>
+                        <span>I agree with the <a href="terms.html" target="_blank" rel="noopener noreferrer" style="color: var(--brand-cyan); text-decoration: underline; font-weight: 700;">Terms &amp; Conditions</a> <span class="required" style="color: #dc2626;">*</span></span>
+                      </label>
+                    </div>
                   </div>
 
                   <!-- Step 3 Action Footer -->
@@ -581,7 +587,7 @@
                     <button type="button" id="btn-step-3-prev" class="btn btn-secondary">
                       &larr; Back to Details
                     </button>
-                    <button type="submit" id="booking-submit-btn" class="btn btn-primary btn-lg" style="flex: 1;">
+                    <button type="submit" id="booking-submit-btn" class="btn btn-primary btn-lg" style="flex: 1;" disabled title="Please check the box to agree with Terms &amp; Conditions to confirm your booking">
                       Confirm Booking
                     </button>
                   </div>
