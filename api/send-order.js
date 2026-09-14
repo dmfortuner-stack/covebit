@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
     orderDetails,
     '',
     '==================================================',
-    'WHAT HAPPENS NEXT?',
+    'AFTER PAYMENT CONFIRMATION',
     '==================================================',
     '1. Verification: D. Meena will contact you via phone or WhatsApp (+44 7979 515140) to confirm your session slot.',
     '2. Remote Session: You will receive a secure Quick Assist / AnyDesk link at your appointment time.',

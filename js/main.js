@@ -1217,7 +1217,7 @@ function initBookingEngine() {
       `${booking.issue}`,
       '',
       '==================================================',
-      'WHAT HAPPENS NEXT?',
+      'AFTER PAYMENT CONFIRMATION',
       '==================================================',
       '1. Verification: D. Meena will contact you via phone or WhatsApp (+44 7979 515140) to confirm your session slot.',
       '2. Remote Session: You will receive a secure 1-click Quick Assist / AnyDesk link at your appointment time.',
