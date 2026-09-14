@@ -1211,6 +1211,7 @@ function initBookingEngine() {
       `Delivery Method   : ${booking.sessionType}`,
       `Date & Time Slot  : ${booking.date} (${booking.time})`,
       booking.postcode ? `On-Site Postcode  : ${booking.postcode}` : '',
+      `Payment Method    : ${booking.isOnCall ? 'Custom Quote (No Upfront Payment)' : 'Stripe (Credit / Debit Card) or PayPal'}`,
       '',
       'Issue Description :',
       `${booking.issue}`,
@@ -1351,7 +1352,7 @@ function initBookingEngine() {
     const postcode = (document.getElementById('booking-postcode') || {}).value || '';
 
     // 3. Payment Partner (Stripe or PayPal) vs On-Call Quote
-    let paymentMethodName = 'Stripe (Credit / Debit Card)';
+    let paymentMethodName = 'Stripe (Credit / Debit Card) or PayPal';
     let paymentActionUrl = pkg.stripeUrl;
 
     if (isOnCall) {
@@ -1361,7 +1362,6 @@ function initBookingEngine() {
       const selectedPaymentInput = document.querySelector('input[name="payment_partner"]:checked');
       const paymentMethod = selectedPaymentInput ? selectedPaymentInput.value : 'stripe';
       if (paymentMethod === 'paypal') {
-        paymentMethodName = 'PayPal Express';
         paymentActionUrl = pkg.paypalUrl;
       }
     }
