@@ -3528,3 +3528,110 @@ input[type="submit"]:disabled,
     transition: none !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Legal & Policy Page Styles
+   -------------------------------------------------------------------------- */
+.policy-card {
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 3rem 3.5rem;
+  box-shadow: var(--shadow-apple-sm);
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .policy-card {
+    padding: 2rem 1.25rem;
+  }
+}
+
+.policy-card h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--primary-900);
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.policy-card h2:first-of-type {
+  margin-top: 1.25rem;
+}
+
+.policy-card p,
+.policy-card li {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+}
+
+.policy-card ul {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.policy-card li {
+  margin-bottom: 0.45rem;
+}
+
+.policy-card a {
+  color: var(--brand-cyan);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.policy-card a:hover {
+  color: var(--brand-cyan-dark);
+}
+
+.policy-table-container {
+  overflow-x: auto;
+  margin: 1.5rem 0 2rem 0;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.policy-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+  min-width: 620px;
+}
+
+.policy-table th {
+  background: var(--bg-subtle);
+  color: var(--primary-900);
+  font-weight: 700;
+  padding: 0.9rem 1.15rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.policy-table td {
+  padding: 0.95rem 1.15rem;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+}
+
+.policy-table tr:last-child td {
+  border-bottom: none;
+}
+
+.policy-table tr:nth-child(even) td {
+  background: #fafbfc;
+}
+
+.policy-meta-box {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.35rem;
+  margin-top: 1.25rem;
+  border-left: 4px solid var(--brand-cyan);
+}
+
