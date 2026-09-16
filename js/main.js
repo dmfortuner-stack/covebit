@@ -429,14 +429,23 @@ function initBookingEngine() {
 
       const currentDigits = val.replace(/\D/g, '');
       if (val.trim().length === 0) {
-        if (phoneHint) phoneHint.innerHTML = 'UK mobile, landline, or international number (7–17 digits)';
+        if (phoneHint) {
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
+        }
         clearPhoneErr();
       } else if (currentDigits.length < 7) {
-        if (phoneHint) phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+        if (phoneHint) {
+          phoneHint.style.display = 'block';
+          phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+        }
         clearPhoneErr();
       } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         clearPhoneErr();
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+        if (phoneHint) {
+          phoneHint.style.display = 'block';
+          phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+        }
       }
       updatePaymentGateStatus();
       if (typeof saveBookingDraft === 'function') saveBookingDraft();
@@ -1736,17 +1745,26 @@ function initContactForm() {
 
       const currentDigits = val.replace(/\D/g, '');
       if (val.trim().length === 0) {
-        if (phoneHint) phoneHint.innerHTML = 'UK mobile, landline, or international number (7–17 digits)';
+        if (phoneHint) {
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
+        }
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
       } else if (currentDigits.length < 7) {
-        if (phoneHint) phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+        if (phoneHint) {
+          phoneHint.style.display = 'block';
+          phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+        }
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
       } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+        if (phoneHint) {
+          phoneHint.style.display = 'block';
+          phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+        }
       }
       checkFormValidity();
     });
