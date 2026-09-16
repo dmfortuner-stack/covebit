@@ -436,15 +436,15 @@ function initBookingEngine() {
         clearPhoneErr();
       } else if (currentDigits.length < 7) {
         if (phoneHint) {
-          phoneHint.style.display = 'block';
-          phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
         }
         clearPhoneErr();
       } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         clearPhoneErr();
         if (phoneHint) {
-          phoneHint.style.display = 'block';
-          phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
         }
       }
       updatePaymentGateStatus();
@@ -456,10 +456,12 @@ function initBookingEngine() {
       const currentDigits = val.replace(/\D/g, '');
       if (val.length > 0 && (currentDigits.length < 7 || currentDigits.length > 17)) {
         showPhoneErr('Please enter a valid phone number (7 to 17 digits, e.g. 07876 543210 or +44 20 1234 5678)');
-        if (phoneHint) phoneHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Must be between 7 and 17 digits (${currentDigits.length} entered)</span>`;
       } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         clearPhoneErr();
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+        if (phoneHint) {
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
+        }
       }
       updatePaymentGateStatus();
     });
@@ -1753,8 +1755,8 @@ function initContactForm() {
         phoneInput.classList.remove('input-error');
       } else if (currentDigits.length < 7) {
         if (phoneHint) {
-          phoneHint.style.display = 'block';
-          phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
         }
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
@@ -1762,8 +1764,8 @@ function initContactForm() {
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
         if (phoneHint) {
-          phoneHint.style.display = 'block';
-          phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
         }
       }
       checkFormValidity();
@@ -1777,11 +1779,14 @@ function initContactForm() {
           phoneErr.textContent = 'Please enter a valid phone number (7 to 17 digits, e.g. 07876 543210 or +44 20 1234 5678)';
           phoneErr.style.display = 'block';
         }
-        if (phoneHint) phoneHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Must be between 7 and 17 digits (${currentDigits.length} entered)</span>`;
         phoneInput.classList.add('input-error');
       } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
+        if (phoneHint) {
+          phoneHint.innerHTML = '';
+          phoneHint.style.display = 'none';
+        }
       }
       checkFormValidity();
     });
