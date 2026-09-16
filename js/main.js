@@ -1877,11 +1877,16 @@ function initContactForm() {
     const subjectVal = subjectInput ? subjectInput.value.trim() : '';
     const messageVal = messageInput ? messageInput.value.trim() : '';
 
-    const orderDetailsParts = [];
-    if (phoneVal) orderDetailsParts.push(`Phone: ${phoneVal}`);
-    if (subjectVal) orderDetailsParts.push(`Topic/Service: ${subjectVal}`);
-    if (messageVal) orderDetailsParts.push(`Message:\n${messageVal}`);
-    const orderDetails = orderDetailsParts.join('\n\n');
+    const summaryLines = [
+      `Name           : ${customerName}`,
+      `Email Address  : ${customerEmail}`
+    ];
+    if (phoneVal) summaryLines.push(`Contact Number : ${phoneVal}`);
+    if (subjectVal) summaryLines.push(`Topic / Service: ${subjectVal}`);
+    summaryLines.push('');
+    summaryLines.push('Message:');
+    summaryLines.push(messageVal);
+    const orderDetails = summaryLines.join('\n');
 
     const originalBtnText = submitBtn ? submitBtn.textContent : 'Send Message to D. Meena';
     if (submitBtn) {
@@ -1898,7 +1903,11 @@ function initContactForm() {
         body: JSON.stringify({
           customerName,
           customerEmail,
-          orderDetails
+          phone: phoneVal,
+          subject: subjectVal,
+          message: messageVal,
+          orderDetails,
+          isEnquiry: true
         })
       });
 
