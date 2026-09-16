@@ -406,30 +406,37 @@ function initBookingEngine() {
 
   if (phoneInput) {
     phoneInput.addEventListener('input', () => {
-      let val = phoneInput.value.trim();
-      if (val.startsWith('+44')) {
-        val = '0' + val.slice(3);
+      let val = phoneInput.value;
+      val = val.replace(/[^\d+\s\-()]/g, '');
+      if (val.indexOf('+') > 0) {
+        val = val.charAt(0) === '+' ? '+' + val.slice(1).replace(/\+/g, '') : val.replace(/\+/g, '');
       }
-      val = val.replace(/\D/g, '').slice(0, 11);
+      const digits = val.replace(/\D/g, '');
+      if (digits.length > 17) {
+        let count = 0;
+        let truncated = '';
+        for (let ch of val) {
+          if (/\d/.test(ch)) {
+            count++;
+            if (count <= 17) truncated += ch;
+          } else {
+            truncated += ch;
+          }
+        }
+        val = truncated;
+      }
       phoneInput.value = val;
 
-      if (val.length === 0) {
-        if (phoneHint) phoneHint.innerHTML = 'Must be 11 digits starting with 07 (e.g. 07979515140)';
+      const currentDigits = val.replace(/\D/g, '');
+      if (val.trim().length === 0) {
+        if (phoneHint) phoneHint.innerHTML = 'UK mobile, landline, or international number (7–17 digits)';
         clearPhoneErr();
-      } else if (!val.startsWith('0')) {
-        showPhoneErr('Phone number must start with 07');
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #dc2626; font-weight: 600;">Must start with 07 (e.g. 07979515140)</span>';
-      } else if (val.length >= 2 && !val.startsWith('07')) {
-        showPhoneErr('Phone number must start with 07');
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #dc2626; font-weight: 600;">Must start with 07 (UK mobile)</span>';
-      } else if (val.length > 0 && val.length < 11) {
+      } else if (currentDigits.length < 7) {
+        if (phoneHint) phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
         clearPhoneErr();
-        if (phoneHint) phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">UK Mobile: ${val.length}/11 digits entered</span>`;
-      } else if (val.length === 11 && val.startsWith('07')) {
+      } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         clearPhoneErr();
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid 11-digit UK Mobile Number</span>';
-      } else {
-        clearPhoneErr();
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
       }
       updatePaymentGateStatus();
       if (typeof saveBookingDraft === 'function') saveBookingDraft();
@@ -437,12 +444,13 @@ function initBookingEngine() {
 
     phoneInput.addEventListener('blur', () => {
       const val = phoneInput.value.trim();
-      if (val.length > 0 && !/^07\d{9}$/.test(val)) {
-        showPhoneErr('Phone number must start with 07 and be exactly 11 digits (e.g. 07979515140)');
-        if (phoneHint) phoneHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Must be exactly 11 digits starting with 07 (${val.length}/11 entered)</span>`;
-      } else if (val.length === 11 && /^07\d{9}$/.test(val)) {
+      const currentDigits = val.replace(/\D/g, '');
+      if (val.length > 0 && (currentDigits.length < 7 || currentDigits.length > 17)) {
+        showPhoneErr('Please enter a valid phone number (7 to 17 digits, e.g. 07876 543210 or +44 20 1234 5678)');
+        if (phoneHint) phoneHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Must be between 7 and 17 digits (${currentDigits.length} entered)</span>`;
+      } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         clearPhoneErr();
-        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid 11-digit UK Mobile Number</span>';
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
       }
       updatePaymentGateStatus();
     });
@@ -572,20 +580,20 @@ function initBookingEngine() {
       clearEmailErr();
     }
 
-    // 3. Phone Number (Mandatory '07' & 11 digits)
+    // 3. Phone Number (7 to 17 digits)
     const rawPhone = phoneInput ? phoneInput.value.trim() : '';
     const cleanPhone = rawPhone.replace(/\D/g, '');
     if (!rawPhone) {
-      missing.push('Phone Number (11 digits starting with 07)');
+      missing.push('Phone Number (7 to 17 digits)');
       if (!firstInvalidEl) firstInvalidEl = phoneInput;
       if (showErrors && phoneInput) {
-        showPhoneErr('Phone number is required (must start with 07 and be 11 digits)');
+        showPhoneErr('Phone number is required (7 to 17 digits)');
       }
-    } else if (!/^07\d{9}$/.test(cleanPhone)) {
-      missing.push('Phone Number (must start with 07 and be exactly 11 digits)');
+    } else if (cleanPhone.length < 7 || cleanPhone.length > 17) {
+      missing.push('Phone Number (must be between 7 and 17 digits)');
       if (!firstInvalidEl) firstInvalidEl = phoneInput;
       if (showErrors && phoneInput) {
-        showPhoneErr('Phone number must start with 07 and be exactly 11 digits (e.g. 07979515140)');
+        showPhoneErr('Phone number must be between 7 and 17 digits (e.g. 07876 543210 or +44 20 1234 5678)');
       }
     } else if (phoneInput) {
       clearPhoneErr();
@@ -1651,6 +1659,7 @@ function initContactForm() {
   const formNotice = document.getElementById('contact-form-notice');
   const emailErr = document.getElementById('contact-email-error');
   const phoneErr = document.getElementById('contact-phone-error');
+  const phoneHint = document.getElementById('contact-phone-hint');
   const successBanner = document.getElementById('contact-success-banner');
 
   function isNameValid() {
@@ -1665,8 +1674,9 @@ function initContactForm() {
 
   function isPhoneValid() {
     if (!phoneInput) return false;
-    const clean = phoneInput.value.replace(/\D/g, '');
-    return /^07\d{9}$/.test(clean);
+    const raw = phoneInput.value.trim();
+    const clean = raw.replace(/\D/g, '');
+    return clean.length >= 7 && clean.length <= 17 && /^\+?[0-9\s\-()]+$/.test(raw);
   }
 
   function isMessageValid() {
@@ -1703,37 +1713,55 @@ function initContactForm() {
   // Real-time phone input formatting & validation
   if (phoneInput) {
     phoneInput.addEventListener('input', () => {
-      let val = phoneInput.value.trim();
-      if (val.startsWith('+44')) {
-        val = '0' + val.slice(3);
+      let val = phoneInput.value;
+      val = val.replace(/[^\d+\s\-()]/g, '');
+      if (val.indexOf('+') > 0) {
+        val = val.charAt(0) === '+' ? '+' + val.slice(1).replace(/\+/g, '') : val.replace(/\+/g, '');
       }
-      val = val.replace(/\D/g, '').slice(0, 11);
+      const digits = val.replace(/\D/g, '');
+      if (digits.length > 17) {
+        let count = 0;
+        let truncated = '';
+        for (let ch of val) {
+          if (/\d/.test(ch)) {
+            count++;
+            if (count <= 17) truncated += ch;
+          } else {
+            truncated += ch;
+          }
+        }
+        val = truncated;
+      }
       phoneInput.value = val;
 
-      if (phoneErr) {
-        if (val.length > 0 && (!val.startsWith('07') || val.length !== 11)) {
-          phoneErr.textContent = val.length < 11 
-            ? `Must start with 07 and be 11 digits (${val.length}/11 entered)`
-            : 'Phone number must start with 07';
-          phoneErr.style.display = 'block';
-          phoneInput.classList.add('input-error');
-        } else {
-          phoneErr.style.display = 'none';
-          phoneInput.classList.remove('input-error');
-        }
+      const currentDigits = val.replace(/\D/g, '');
+      if (val.trim().length === 0) {
+        if (phoneHint) phoneHint.innerHTML = 'UK mobile, landline, or international number (7–17 digits)';
+        if (phoneErr) phoneErr.style.display = 'none';
+        phoneInput.classList.remove('input-error');
+      } else if (currentDigits.length < 7) {
+        if (phoneHint) phoneHint.innerHTML = `<span style="color: var(--brand-cyan); font-weight: 600;">Entering number: ${currentDigits.length} digits</span>`;
+        if (phoneErr) phoneErr.style.display = 'none';
+        phoneInput.classList.remove('input-error');
+      } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
+        if (phoneErr) phoneErr.style.display = 'none';
+        phoneInput.classList.remove('input-error');
+        if (phoneHint) phoneHint.innerHTML = '<span style="color: #166534; font-weight: 700;">✓ Valid phone number</span>';
       }
       checkFormValidity();
     });
 
     phoneInput.addEventListener('blur', () => {
       const val = phoneInput.value.trim();
-      if (val.length > 0 && !/^07\d{9}$/.test(val)) {
+      const currentDigits = val.replace(/\D/g, '');
+      if (val.length > 0 && (currentDigits.length < 7 || currentDigits.length > 17)) {
         if (phoneErr) {
-          phoneErr.textContent = 'Phone number must start with 07 and be exactly 11 digits (e.g. 07979515140)';
+          phoneErr.textContent = 'Please enter a valid phone number (7 to 17 digits, e.g. 07876 543210 or +44 20 1234 5678)';
           phoneErr.style.display = 'block';
         }
+        if (phoneHint) phoneHint.innerHTML = `<span style="color: #dc2626; font-weight: 600;">Must be between 7 and 17 digits (${currentDigits.length} entered)</span>`;
         phoneInput.classList.add('input-error');
-      } else if (val.length === 11 && /^07\d{9}$/.test(val)) {
+      } else if (currentDigits.length >= 7 && currentDigits.length <= 17) {
         if (phoneErr) phoneErr.style.display = 'none';
         phoneInput.classList.remove('input-error');
       }
@@ -1806,7 +1834,7 @@ function initContactForm() {
       if (submitBtn.disabled || !checkFormValidity()) {
         e.preventDefault();
         e.stopPropagation();
-        alert('Please fill all required fields marked with * (Name, Email with @, 11-digit 07 Phone, and Message) before sending.');
+        alert('Please fill all required fields marked with * (Name, Email with @, Phone with 7–17 digits, and Message) before sending.');
         return false;
       }
     });
