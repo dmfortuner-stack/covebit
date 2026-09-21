@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://covebit.co.uk/sitemap.xml
+Sitemap: https://www.covebit.co.uk/sitemap.xml
